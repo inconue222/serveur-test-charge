@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Serveur de test</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 20px;background:#f5f5f5}
+    .card{background:white;padding:24px;border-radius:16px;box-shadow:0 4px 18px #0001;margin-bottom:18px}
+    h1{margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    .stat{padding:16px;background:#f0f0f0;border-radius:12px}.value{font-size:28px;font-weight:bold;margin-top:6px}
+    code{background:#eee;padding:3px 6px;border-radius:5px}
+    #status{font-weight:bold}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Serveur de test</h1>
+    <p>Page destinée aux tests de charge autorisés.</p>
+    <p>État : <span id="status">Connexion...</span></p>
+  </div>
+
+  <div class="card">
+    <h2>Statistiques</h2>
+    <div class="grid">
+      <div class="stat">Requêtes totales<div class="value" id="total">-</div></div>
+      <div class="stat">Requêtes API<div class="value" id="api">-</div></div>
+      <div class="stat">Mémoire RSS<div class="value" id="mem">-</div></div>
+      <div class="stat">CPU / charge 1 min<div class="value" id="cpu">-</div></div>
+      <div class="stat">Uptime<div class="value" id="uptime">-</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Endpoint de test</h2>
+    <p><code>/api/health</code> — renvoie une petite réponse JSON.</p>
+    <p><code>/api/stats</code> — renvoie les statistiques du serveur.</p>
+  </div>
+
+<script>
+async function refresh(){
+  try{
+    const r = await fetch("/api/stats", {cache:"no-store"});
+    const s = await r.json();
+    document.querySelector("#status").textContent = "En ligne";
+    document.querySelector("#total").textContent = s.totalRequests;
+    document.querySelector("#api").textContent = s.apiRequests;
+    document.querySelector("#mem").textContent = s.memoryMB + " MB";
+    document.querySelector("#cpu").textContent = s.cpuLoad1m;
+    document.querySelector("#uptime").textContent = s.uptimeSeconds + " s";
+  }catch(e){
+    document.querySelector("#status").textContent = "Hors ligne";
+  }
+}
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>
